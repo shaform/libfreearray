@@ -31,62 +31,97 @@
 #include <vector>
 #include "kbtype.h"
 #include "code.h"
-namespace {
-	using std::string;
-	using std::vector;
-}
-namespace freearray {
-	class KbType::Impl {
-		public:
-			typedef vector<string> conv_vec;
-			conv_vec convert_strings;
-			const string name;
-			Impl(const string &s) : name(s) {}
-	};
-	KbType::KbType(const string &kbtype) : impl(new Impl(kbtype)) {}
-	KbType::~KbType() { delete impl; }
 
-	string KbType::get_kbtype_string() const
+using std::string;
+using std::vector;
+namespace {
+
+	//Helper functions
+	const vector<string> get_conv_str_default()
 	{
-		//In fact, impl should never be NULL
-		if (impl)
-			return impl->name;
+		vector<string> vec;
+		vec.push_back("qwertyuiopasdfghjkl;zxcvbnm,./");
+		vec.push_back("QWERTYUIOPASDFGHJKL:ZXCVBNM<>?");
+		return vec;
+	}
+	const vector<string> get_conv_str_dvorak()
+	{
+		vector<string> vec;
+		vec.push_back("',.pyfgcrlaoeuidhtns;qjkxbmwvz");
+		vec.push_back("\"<>PYFGCRLAOEUIDHTNS:QJKXBMWVZ");
+		return vec;
+	}
+}
+
+namespace freearray {
+	class KbType::Data {
+		friend class KbType;
+		typedef vector<string> conv_vec;
+
+		conv_vec convert_strings;
+		const string name;
+		int count;
+
+		Data(const string &s, const conv_vec &vec) : name(s), convert_strings(vec), count(1) {}
+	};
+
+	KbType::KbType(const std::string &kbtype, const std::vector<std::string> &conv_strs)
+		: data(new Data(kbtype, conv_strs))
+	{
+	}
+
+	void KbType::decr_use()
+	{
+		if (data && --data->count == 0)
+			delete data;
+	}
+
+	void KbType::incr_use()
+	{
+		if (data) ++data->count;
+	}
+
+
+	const string KbType::get_kbtype_string() const
+	{
+		if (data)
+			return data->name;
 		else
 			return string();
 	}
 
 	inline void KbType::add_convert_string(const string &s)
 	{
-		//In fact, impl should never be NULL
-		if (impl)
-			impl->convert_strings.push_back(s);
+		if (data)
+			data->convert_strings.push_back(s);
 	}
 
 
 
-	KeyCode KbType::get_kc(char c) const
+	KeyCode KbType::get_key(char c) const
 	{
-		if (impl)
-			for (Impl::conv_vec::size_type i=0; i < impl->convert_strings.size(); ++i) {
-				string::size_type found = impl->convert_strings[i].find(c);
+		if (data)
+			for (Data::conv_vec::size_type i=0; i < data->convert_strings.size(); ++i) {
+				string::size_type found = data->convert_strings[i].find(c);
 				if (found != string::npos)
 					return found + 1;
 			}
 
 		return KEYCODE_ERROR;
 	}
-	int KbType::get_char(KeyCode kc) const
+
+	int KbType::get_char(KeyCode key) const
 	{
 		// Check if conversion is possible
-		if (valid_kc(kc) && impl && !impl->convert_strings.empty()) {
-			// Set the search position for kc
-			Impl::conv_vec::size_type pos = kc;
+		if (is_key_valid(key) && data && !data->convert_strings.empty()) {
+			// Set the search position for key
+			Data::conv_vec::size_type pos = key;
 			--pos;
 
-			// Search for the first convert_string which is able to convert kc
-			for (Impl::conv_vec::size_type i=0; i < impl->convert_strings.size(); ++i)
-				if (pos < impl->convert_strings[i].size())
-					return impl->convert_strings[i][pos];
+			// Search for the first convert_string which is able to convert key
+			for (Data::conv_vec::size_type i=0; i < data->convert_strings.size(); ++i)
+				if (pos < data->convert_strings[i].size())
+					return data->convert_strings[i][pos];
 		}
 
 		return EOF;
@@ -94,12 +129,13 @@ namespace freearray {
 
 	int KbType::convert(char c, const KbType &from) const
 	{
-		int kc = from.get_kc(c);
-		if (kc != KEYCODE_ERROR)
-			return get_char(kc);
+		int key = from.get_key(c);
+		if (key != KEYCODE_ERROR)
+			return get_char(key);
 		else
 			return EOF;
 	}
+
 	int KbType::convert(string &dest, const string &source, const KbType &from) const
 	{
 		dest.clear();
@@ -127,27 +163,9 @@ namespace freearray {
 	/* The first convert_string is for lowercase, and second is for uppercase */
 
 	/* Default USA Qwerty Keyboard */
-	KbTypeDefault::KbTypeDefault() : KbType(string("USA_Default"))
-	{
-		add_convert_string(string("qwertyuiopasdfghjkl;zxcvbnm,./"));
-		add_convert_string(string("QWERTYUIOPASDFGHJKL:ZXCVBNM<>?"));
-	}
-	KbTypeDefault *KbTypeDefault::get_type()
-	{
-		static KbTypeDefault kbt;
-		return kbt;
-	}
+	extern const KbType kbt_default("USA_Default", get_conv_str_default());
 
 	/* USA Dvorak Keyboard */
-	KbTypeDvorak::KbTypeDvorak() : KbType(string("USA_Dvorak"))
-	{
-		add_convert_string(string("',.pyfgcrlaoeuidhtns;qjkxbmwvz"));
-		add_convert_string(string("\"<>PYFGCRLAOEUIDHTNS:QJKXBMWVZ"));
-	}
+	extern const KbType kbt_dvorak("USA_Dvorak", get_conv_str_dvorak());
 
-	KbTypeDvorak *KbTypeDvorak::get_type()
-	{
-		static KbTypeDvorak kbt;
-		return kbt;
-	}
 }

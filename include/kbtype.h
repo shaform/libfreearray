@@ -33,34 +33,48 @@
 #endif
 
 #include <string>
+#include "code.h"
 
 namespace freearray {
-	typedef unsigned short KeyCode;
 	class KbType {
 		public:
+
+			/**
+			 * @brief Empty Constructor.
+			 */
+			KbType();
+
+			/**
+			 * @brief Constructor, setting the name of the KbType & its convert strings.
+			 */
+			KbType(const std::string &kbtype, const std::vector<std::string> &conv_strs = std::vector<std::string>());
+			KbType(const KbType &rhs);
+
+			~KbType();
+
 			/**
 			 * @brief Get the name string of the KbType.
 			 * @return A string containing the name of the KbType.
 			 */
-			std::string get_kbtype_string() const;
+			const std::string get_kbtype_string() const;
 
 
 			/**
 			 * @brief Get the KeyCode of *c* in this KbType.
 			 * @return A KeyCode
 			 */
-			KeyCode get_kc(char c) const;
+			KeyCode get_key(char c) const;
 
 
 			/**
-			 * @brief Get the character of *kc* in this KbType.
+			 * @brief Get the character of *key in this KbType.
 			 *
 			 * Notice that the mapping from KeyCode to character may not be unique,
 			 * but the KbType must always return the same character for the same KeyCode.
 			 *
 			 * @return A character, EOF if failed
 			 */
-			int get_char(KeyCode kc) const;
+			int get_char(KeyCode key) const;
 
 
 			/**
@@ -80,50 +94,72 @@ namespace freearray {
 			 */
 			int convert(char c, const KbType &from) const;
 
-			virtual ~KbType();
-		protected:
+			KbType &operator=(const KbType &rhs);
 
+			bool operator==(const KbType &rhs) const;
+
+			bool operator!=(const KbType &rhs) const;
+
+		private:
 			/**
 			 * @brief Add a convert_string.
 			 *
-			 * Each KbType derived from this class should call this function to set its convert_string.
 			 * Multiple mappings can be set, but if the same character occurs in different convert_string
 			 * and in different places, the behaviour is undefined
 			 *
-			 * **Note**
-			 * The length of a convert_string should be 30 now
-			 * But in the future, up to 60 may be used
-			 * 
 			 */
 			void add_convert_string(const std::string &convert_string);
 
 
-			/**
-			 * @brief Constructor, setting the name of the KbType.
-			 */
-			KbType(const std::string &kbtype);
-
-
-
-
-
 		private:
-			class Impl;
-			Impl *impl;
+			class Data;
+			Data *data;
+
+			void decr_use();
+			void incr_use();
 	};
 
-	class KbTypeDefault : public KbType {
-		public:
-			static KbTypeDefault *get_type();
-		private:
-			KbTypeDefault();
-	};
-	class KbTypeDvorak : public KbType {
-		public:
-			static KbTypeDvorak *get_type();
-		private:
-			KbTypeDvorak();
-	};
+
+
+
+
+	inline KbType::KbType() : data(0) {}
+	inline KbType::KbType(const KbType &rhs)
+		: data(rhs.data)
+	{
+		incr_use();
+	}
+	inline KbType::~KbType()
+	{
+		decr_use();
+	}
+	inline KbType &KbType::operator=(const KbType &rhs)
+	{
+		if (&rhs != this) {
+			decr_use();
+			data = rhs.data;
+			incr_use();
+		}
+		return *this;
+	}
+
+	inline bool KbType::operator==(const KbType &rhs) const
+	{
+		return rhs.data == data;
+	}
+
+	inline bool KbType::operator!=(const KbType &rhs) const
+	{
+		return rhs.data != data;
+	}
+
+
+
+
+
+
+	extern const KbType kbt_default;
+	extern const KbType kbt_dvorak;
 }
 #endif
 
