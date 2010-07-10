@@ -20,6 +20,9 @@
  * See the file "COPYING" for information on usage and redistribution
  * of this file.
  */
+
+#include "code.h"
+
 namespace freearray {
 	struct Word {
 		int type;
@@ -36,6 +39,65 @@ namespace freearray {
 	Factory;
 	PhrasingModule;
 
+	class KeyCodeBuffer
+	{
+		public:
+			explicit KeyCodeBuffer(int size = ARRAYCODE_MAX_LEN) : max_len(size) {}
+
+			void push_back(KeyCode key) { if (!is_full()) buffer.push_back(key); }
+
+			void clear() { buffer.clear(); }
+			void pop() { buffer.pop_back(); }
+
+			bool is_full() { return buffer.size() >= max_len; }
+			bool is_empty() { return buffer.empty(); }
+			bool get_length() { return buffer.size(); }
+
+			ArrayCode get_code() { return keytocode(buffer); }
+			Keycode &get_key(int n) { return buffer.at(n); }
+			KeyCode &back() { return buffer.back(); }
+
+
+			KeyCode &operator[](int n) { return buffer[n]; }
+
+
+		private:
+			vector<KeyCode> buffer;
+			const int max_len;
+	};
+
+	class PhrasedCharBuffer
+	{
+	};
+
+	class CharBuffer
+	{
+		public:
+			unsigned char buffer;
+
+
+			void set_max_length(size_t);
+
+
+			std::string get_string(size_t);
+			std::string get_string(size_t, size_t);
+			std::string get_string();
+
+
+			std::string get_vector(size_t);
+			std::string get_vector(size_t, size_t);
+			std::string get_vector();
+
+			erase(size_t);
+			erase(size_t, size_t);
+			void clear();
+
+			bool is_full();
+			bool is_overflowed();
+
+		private:
+			size_t cursor;
+	};
 
 	class LookupTable
 	{
