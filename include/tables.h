@@ -36,9 +36,9 @@
 namespace freearray {
 	class DataTable {
 		public:
-			virtual bool query(std::string s) = 0;
+			virtual bool query(std::string str) = 0;
 			/*query*/
-			virtual bool query(ArrayCode ac) = 0;
+			virtual bool query(ArrayCode code) = 0;
 			/*
 			virtual bool query(ArrayCode begin, ArrayCode end) = 0;
 			*/

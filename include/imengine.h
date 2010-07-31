@@ -29,11 +29,15 @@
 #include "code.h"
 #include "tables.h"
 #include "imengine_component.h"
+#include "kbtype.h"
 
 namespace freearray {
+	class IM {
+	};
 	class FreeArrayIM;
 
 	/* This should be a state */
+	/*
 	class FreeArrayIM::Variety {
 		private:
 			friend class FreeArrayIM;
@@ -103,6 +107,7 @@ namespace freearray {
 	{
 		if (data) ++data->count;
 	}
+	*/
 
 	
 
@@ -117,26 +122,32 @@ namespace freearray {
 	 * Main FreeArray IM class
 	 *
 	 */
+
 	class FreeArrayIM {
 		public:
 			size_t get_max_ac_size();
-			class Variety;
+			enum Variety {
+				TC,
+				SC,
+				ENG,
+			};
 			enum {
-				EVENT_ACCEPTED,
-				EVENT_IGNORED,
-				EVENT_PASSED,
+				ACCEPTED,
+				IGNORED,
+				PASSED,
 			};
 
 
 		public:
 			// Input
-			//int input_sign(char);
+			int input_sign(int);
 			int input_key(KeyCode);
-			int input_key(char);
+			int input_key(int);
 
 			// Commit
-			/*
+
 			int commit_char();
+#if 0 
 			int commit_array_sign();
 			int commit_phrase();
 
@@ -144,109 +155,149 @@ namespace freearray {
 			int commit_all();
 
 			int commit_short(int);
-			*/
+#endif
 
 			// Character Buffer
-			/*
-			int cursor_up();
-			int cursor_down();
-			int cursor_front();
-			int cursor_end();
-			int cursor_remove();
-			*/
+			CharBuffer::Iterator cursor_up();
+			CharBuffer::Iterator cursor_down();
+			CharBuffer::Iterator cursor_front();
+			CharBuffer::Iterator cursor_end();
+			/*int cursor_remove();*/
 
 			//void clear_buffer();
 			void clear_keys();
 			void pop_key();
 			void clear_aux();
+			void clear_buffer();
 			//void clear();
 			//void reset();
 
-			/*
-			bool cursor_lookup();
 
-			symbol_table();
-			break_point();
-			*/
+
+			bool is_lookup_table_shown()
+			{
+				return false;
+			}
+			bool is_key_error()
+			{
+				return false;
+			}
+			void set_key_updated()
+			{
+			}
+			void set_key_error()
+			{
+			}
+			size_t get_key_size()
+			{
+				return key_buffer.get_length();
+			}
+			/*
+			   bool cursor_lookup();
+
+			   symbol_table();
+			   break_point();
+			 */
 
 
 			// Getter
 			/*
-			bool get_buffer(std::string &);
-			bool get_buffer(std::vector<std::string> &);
+			   bool get_buffer(std::string &);
+			   bool get_buffer(std::vector<std::string> &);
 
-			bool get_commit(std::string &);
-			bool get_commit(std::vector<std::string> &);
+			   bool get_commit(std::string &);
+			   bool get_commit(std::vector<std::string> &);
 
-			bool get_auxiliary(std::string &);
-			bool get_auxiliary(std::vector<std::string> &);
-
-
-			LookupTable get_cands();
-			get_();
-			*/
+			   bool get_auxiliary(std::string &);
+			   bool get_auxiliary(std::vector<std::string> &);
 
 
+			   LookupTable get_cands();
+			   get_();
+			 */
 
+
+
+			void set_kbtype(KbType);
+			KbType get_kbtype();
 			/* Setter */
 			/*
-			void set_kbtype(kbtype);
-			void set_array_sign_input();
-			void set_array_easy_sign_input();
-			void set_auto_clear_mode();
+			   void set_kbtype(kbtype);
+
+			   int faft_context_end_lookup_table(FAFTContext *);
+			   int faft_context_show_lookup_table(FAFTContext *);
+
+			   int faft_context_first_avail(FAFTContext *);
+			   int faft_context_last_avail(FAFTContext *);
+			   int faft_context_prev_avail(FAFTContext *);
+			   int faft_context_next_avail(FAFTContext *);
+
+			   int faft_context_first_page(FAFTContext *);
+			   int faft_context_last_page(FAFTContext *);
+			   int faft_context_prev_page(FAFTContext *);
+			   int faft_context_next_page(FAFTContext *);
+
+			   int faft_context_select_cand(FAFTContext *, int nth);
+			   int faft_context_any_row_select(FAFTContext *, int keysym);
 
 
-			int faft_context_end_lookup_table(FAFTContext *);
-			int faft_context_show_lookup_table(FAFTContext *);
-
-			int faft_context_first_avail(FAFTContext *);
-			int faft_context_last_avail(FAFTContext *);
-			int faft_context_prev_avail(FAFTContext *);
-			int faft_context_next_avail(FAFTContext *);
-
-			int faft_context_first_page(FAFTContext *);
-			int faft_context_last_page(FAFTContext *);
-			int faft_context_prev_page(FAFTContext *);
-			int faft_context_next_page(FAFTContext *);
-
-			int faft_context_select_cand(FAFTContext *, int nth);
-			int faft_context_any_row_select(FAFTContext *, int keysym);
-
-
-			*/
+			 */
 
 			/* Attributes */
 
 			/*
-			shape toggle_shape();
-			shape get_shape();
-			*/
+			   shape toggle_shape();
+			   shape get_shape();
+			 */
 
 			const Variety set_variety(Variety = Variety());
-			const Variety get_variety() const { return v_current; }
+			const Variety get_variety() const;
 
-			const Variety get_eng_variety() const { return v_eng; }
-			const Variety get_tc_variety() const { return v_tc; }
-			const Variety get_sc_variety() const { return v_sc; }
+			const Variety get_eng_variety() const;
+			const Variety get_tc_variety() const;
+			const Variety get_sc_variety() const;
 
 			/*
-			kbtype toggel_kbtype();
-			kbtype get_kbtype();
-			*/
+			   kbtype toggel_kbtype();
+			   const kbtype &get_kbtype();
+			 */
 
-			bool set_auto_clear_mode(bool = !m_auto_clear);
-			bool set_auto_input_mode(bool = !m_auto_input);
-			bool set_back_choose_mode(bool = !m_back_choose);
-			bool set_pre_input_mode(bool = !pre_input);
-			bool set_short_mode(bool = !m_short);
-			bool set_phrase_mode(bool = !m_phrase);
-			bool set_array_sign_mode(bool = !m_array_sign);
-			bool set_easy_symbol_mode(bool = !m_easy_symbol);
+			bool set_auto_clear_mode(bool);
+			bool set_auto_input_mode(bool);
+			bool set_back_choose_mode(bool);
+			bool set_space_select_mode(bool);
+			bool set_pre_input_mode(bool);
+			bool set_short_mode(bool);
+			bool set_phrase_mode(bool);
+			bool set_array_sign_mode(bool);
+			bool set_easy_symbol_mode(bool);
+			/**
+			  Togglers
+			 */
+			bool set_auto_clear_mode();
+			bool set_auto_input_mode();
+			bool set_back_choose_mode();
+			bool set_space_select_mode();
+			bool set_pre_input_mode();
+			bool set_short_mode();
+			bool set_phrase_mode();
+			bool set_array_sign_mode();
+			bool set_easy_symbol_mode();
+
+			bool is_auto_clear_mode();
+			bool is_auto_input_mode();
+			bool is_back_choose_mode();
+			bool is_space_select_mode();
+			bool is_pre_input_mode();
+			bool is_short_mode();
+			bool is_phrase_mode();
+			bool is_array_sign_mode();
+			bool is_easy_symbol_mode();
 
 
 
-			bool is_key_buffer_full() { return kcb.is_full(); }
-			bool is_key_buffer_empty() { return kcb.is_empty(); }
+			bool is_key_buffer_full() { return key_buffer.is_full(); }
+			bool is_key_buffer_empty() { return key_buffer.is_empty(); }
 
 			/*
 			   int buffer_size() const;
@@ -254,22 +305,29 @@ namespace freearray {
 			   int keycode_buffer_size() const;
 			   int keycode_buffer_capacity() const;
 
-			   void reset();
 			 */
+			void reset();
 
 		public:
+			/*
+			   FreeArrayIM()
+			   : v_eng("English","EN"), v_tc("Traditional Chinese", "TC"), v_sc("Simplified Chinese", "SC")
+			   {}
+			 */
 			FreeArrayIM()
-				: v_eng("English","EN"), v_tc("Traditional Chinese", "TC"), v_sc("Simplified Chinese", "SC")
-			{}
+				: v_eng(ENG), v_tc(TC), v_sc(SC) {}
 			~FreeArrayIM();
+
 
 		private:
 			// implementation
-			
+
 
 			/* ArrayCode, KeyCodes, KeyCode string */
+			/* KeyCodes */
 			KeyCodeBuffer key_buffer;
 			CharBuffer char_buffer;
+			void call_phrasing();
 
 			/* Auxiliary string */
 			std::string aux;
@@ -281,6 +339,7 @@ namespace freearray {
 
 			/* Varieties */
 			const Variety v_eng, v_tc, v_sc;
+			Variety v_current;
 
 			/* Settings */
 			bool m_auto_clear;
@@ -292,12 +351,25 @@ namespace freearray {
 			bool m_array_sign;
 			bool m_easy_symbol;
 
+			KbType kbt;
+
 
 			/* States */
 			bool s_lookup;
 			bool s_;
 	};
 
+#if 0
+	inline int FreeArrayIM::input_sign(char ckey)
+	{
+		return char_buffer.insert(ckey, ckey);
+	}
+#endif
+
+	inline int FreeArrayIM::input_key(int keysym)
+	{
+		return input_key(get_kbtype().get_key(keysym));
+	}
 
 	inline void FreeArrayIM::clear_keys()
 	{
@@ -311,40 +383,145 @@ namespace freearray {
 	{
 		aux.clear();
 	}
-	inline bool set_auto_clear_mode(bool m)
+	inline void FreeArrayIM::clear_buffer()
+	{
+		char_buffer.clear();
+	}
+
+
+
+	inline void FreeArrayIM::reset()
+	{
+		clear_keys();
+		clear_aux();
+		clear_buffer();
+	}
+	inline CharBuffer::Iterator FreeArrayIM::cursor_up()
+	{
+		return char_buffer.backward();
+	}
+	inline CharBuffer::Iterator FreeArrayIM::cursor_down()
+	{
+		return char_buffer.forward();
+	}
+	inline CharBuffer::Iterator FreeArrayIM::cursor_front()
+	{
+		return char_buffer.seek(char_buffer.begin());
+	}
+	inline CharBuffer::Iterator FreeArrayIM::cursor_end()
+	{
+		return char_buffer.seek(char_buffer.end());
+	}
+
+	/**
+	  Settings
+	 */
+	inline void FreeArrayIM::set_kbtype(KbType k)
+	{
+		kbt = k;
+	}
+	inline KbType FreeArrayIM::get_kbtype()
+	{
+		return kbt;
+	}
+
+	const FreeArrayIM::Variety FreeArrayIM::set_variety(Variety v)
+	{
+		v_current = v;
+	}
+	const FreeArrayIM::Variety FreeArrayIM::get_variety() const
+	{
+		return v_current;
+	}
+
+	const FreeArrayIM::Variety FreeArrayIM::get_eng_variety() const
+	{
+		return v_eng;
+	}
+	const FreeArrayIM::Variety FreeArrayIM::get_tc_variety() const
+	{
+		return v_tc;
+	}
+	const FreeArrayIM::Variety FreeArrayIM::get_sc_variety() const
+	{
+		return v_sc;
+	}
+	inline bool FreeArrayIM::set_auto_clear_mode(bool m)
 	{
 		return m_auto_clear = m;
 	}
-	inline bool set_auto_input_mode(bool m)
+	inline bool FreeArrayIM::set_auto_input_mode(bool m)
 	{
 		return m_auto_input = m;
 	}
-	inline bool set_back_choose_mode(bool m)
+	inline bool FreeArrayIM::set_back_choose_mode(bool m)
 	{
-		return m_auto_back_choose = m;
+		return m_back_choose = m;
 	}
-	inline bool set_pre_input_mode(bool m)
+	inline bool FreeArrayIM::set_pre_input_mode(bool m)
 	{
 		return m_pre_input = m;
 	}
-	inline bool set_short_mode(bool m)
+	inline bool FreeArrayIM::set_short_mode(bool m)
 	{
 		return m_short = m;
 	}
-	inline bool set_phrase_mode(bool m)
+	inline bool FreeArrayIM::set_phrase_mode(bool m)
 	{
 		return m_phrase = m;
 	}
-	inline bool set_array_sign_mode(bool m)
+	inline bool FreeArrayIM::set_array_sign_mode(bool m)
 	{
 		return m_array_sign = m;
 	}
-	inline bool set_easy_symbol_mode(bool m)
+	inline bool FreeArrayIM::set_easy_symbol_mode(bool m)
 	{
 		return m_easy_symbol = m;
 	}
 
+	inline bool FreeArrayIM::set_auto_clear_mode()
+	{
+		return m_auto_clear = !m_auto_clear;
+	}
+	inline bool FreeArrayIM::set_auto_input_mode()
+	{
+		return m_auto_input = !m_auto_input;
+	}
+	inline bool FreeArrayIM::set_back_choose_mode()
+	{
+		return m_back_choose = !m_back_choose;
+	}
+	inline bool FreeArrayIM::set_pre_input_mode()
+	{
+		return m_pre_input = !m_pre_input;
+	}
+	inline bool FreeArrayIM::set_short_mode()
+	{
+		return m_short = !m_short;
+	}
+	inline bool FreeArrayIM::set_phrase_mode()
+	{
+		return m_phrase = !m_phrase;
+	}
+	inline bool FreeArrayIM::set_array_sign_mode()
+	{
+		return m_array_sign = !m_array_sign;
+	}
+	inline bool FreeArrayIM::set_easy_symbol_mode()
+	{
+		return m_easy_symbol = !m_easy_symbol;
+	}
+
+
+
+
+
+
+
+
+
 	extern FreeArrayIM freearray_im;
+
 }
 
 #endif

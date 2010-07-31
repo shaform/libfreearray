@@ -22,22 +22,23 @@
  */
 
 #include "code.h"
+#define MAX_UTF8_SIZE 6
 
 namespace freearray {
-	struct Word {
-		int type;
 
-		wch_t ch;
-
-		char c_code;
-		ArrayCode a_code;
+	union wch_t {
+		char str[MAX_UTF8_SIZE + 1];
+		wchar_t wch;
+		wch_t();
+		wch_t(char[]);
+		wch_t(wchar_t);
 	};
 
-
-
+#if 0
 	Variety;
 	Factory;
 	PhrasingModule;
+#endif
 
 	class KeyCodeBuffer
 	{
@@ -54,7 +55,7 @@ namespace freearray {
 			bool get_length() { return buffer.size(); }
 
 			ArrayCode get_code() { return keytocode(buffer); }
-			Keycode &get_key(int n) { return buffer.at(n); }
+			KeyCode &get_key(int n) { return buffer.at(n); }
 			KeyCode &back() { return buffer.back(); }
 
 
@@ -62,7 +63,7 @@ namespace freearray {
 
 
 		private:
-			vector<KeyCode> buffer;
+			std::vector<KeyCode> buffer;
 			const int max_len;
 	};
 
@@ -70,35 +71,172 @@ namespace freearray {
 	{
 	};
 
+
+
+
+
 	class CharBuffer
 	{
 		public:
-			unsigned char buffer;
+			typedef size_t Iterator;
+			typedef int CharType;
+#if 0
+			class Iterator {
+				public:
+					   operator++
+					   operator++
+					   operator--
+					   operator--
+					   operator-=
+					   operator+=
+					   operator int() { return pos; }
+				private:
+					int pos;
+			};
+#endif
+		public:
+			CharBuffer();
+		public:
+			
+#if 0
+			AvailInfo availInfo;
+			ChoiceInfo choiceInfo;
+			PhrasingOutput phrOut;
+
+			char selectStr[ MAX_PHONE_SEQ_LEN ][ MAX_PHONE_SEQ_LEN * MAX_UTF8_SIZE + 1 ];
+			IntervalType selectInterval[ MAX_PHONE_SEQ_LEN ];
+			
+			IntervalType preferInterval[ MAX_INTERVAL ]; /* add connect points */
+#endif
+
+			/* store chars */
+			std::vector<wch_t> buffer;
+			/* store ArrayCodes */
+			std::vector<ArrayCode> code_buffer;
+			/* store output */
+			std::vector<std::string> output_buffer;
+			/* char keys */
+			std::vector<char> ckey_buffer;
 
 
+			/* phrasing breakpoints */
+			std::vector<bool> break_points;
+			/* user breakpoint */
+			std::vector<bool> user_break_points;
+			/* user connectpoints */
+			std::vector<bool> user_connect_points;
+
+			/* for use in phrasing / etc */
+			std::vector<int> type_buffer;
+			/* for output display */
+			std::string bytestring;
+
+			void insert(wch_t, int pos);
+			void insert(ArrayCode, int pos);
 			void set_max_length(size_t);
 
+			const std::string get_string(Iterator) const;
+			const std::string get_string(Iterator, Iterator) const;
+			const std::string get_string() const;
 
-			std::string get_string(size_t);
-			std::string get_string(size_t, size_t);
-			std::string get_string();
+			const std::string get_vector(Iterator) const;
+			const std::string get_vector(Iterator, Iterator) const;
+			const std::string get_vector() const;
 
-
-			std::string get_vector(size_t);
-			std::string get_vector(size_t, size_t);
-			std::string get_vector();
-
-			erase(size_t);
-			erase(size_t, size_t);
+			void erase(Iterator);
+			void erase(Iterator, Iterator);
 			void clear();
 
-			bool is_full();
-			bool is_overflowed();
+			bool is_full() const;
+			bool is_overflowed() const;
+		public:
 
+			void insert(char ckey, wch_t sym = wch_t());
+
+			void insert(ArrayCode code, wch_t sym = wch_t());
+
+			void insert(CharType type, char ckey, wch_t sym = wch_t());
+
+			void insert(CharType type, ArrayCode code, wch_t sym = wch_t());
+
+
+			void insert(Iterator pos, char ckey, wch_t sym = wch_t());
+
+			void insert(Iterator pos, ArrayCode code, wch_t sym = wch_t());
+
+			void insert(Iterator pos, CharType type, char ckey, wch_t sym = wch_t());
+
+			void insert(Iterator pos, CharType type, ArrayCode code, wch_t sym = wch_t());
+
+
+
+
+			void insert(Iterator pos, CharType type, ArrayCode code, char ckey, wch_t sym = wch_t());
+		public:
+			Iterator current() { return cursor; }
+			Iterator begin() { return Iterator(0); }
+			Iterator end() { return Iterator(buffer.size()); }
+
+			Iterator forward() { return ++cursor; }
+			Iterator backward() { return --cursor; }
+			Iterator seek(Iterator it) { return cursor = it; }
 		private:
-			size_t cursor;
+			Iterator cursor;
 	};
 
+	CharBuffer::CharBuffer()
+		: cursor(begin())
+	{
+	}
+	void CharBuffer::insert(Iterator pos, CharType type, ArrayCode code, char ckey, wch_t sym)
+	{
+		/* shift the selectInterval */
+		break_points.insert(break_points.begin() + pos, false);
+		user_break_points.insert(user_break_points.begin() + pos, false);
+		user_connect_points.insert(user_connect_points.begin() + pos, false);
+
+		/* insert all symbols */
+		code_buffer.insert(code_buffer.begin() + pos, code);
+		type_buffer.insert(type_buffer.begin() + pos, type);
+		buffer.insert(buffer.begin() + pos, sym);
+		ckey_buffer.insert(ckey_buffer.begin() + pos, ckey);
+	}
+	inline void CharBuffer::insert(char ckey, wch_t sym)
+	{
+		insert(current(), ckey, sym);
+	}
+	inline void CharBuffer::insert(ArrayCode code, wch_t sym)
+	{
+		insert(current(), code, sym);
+	}
+	inline void CharBuffer::insert(CharType type, char ckey, wch_t sym)
+	{
+		insert(current(), type, ckey, sym);
+	}
+	inline void CharBuffer::insert(CharType type, ArrayCode code, wch_t sym)
+	{
+		insert(current(), type, code, sym);
+	}
+	inline void CharBuffer::insert(Iterator pos, char ckey, wch_t sym)
+	{
+		insert(pos, 0, 0, ckey, sym);
+	}
+	inline void CharBuffer::insert(Iterator pos, ArrayCode code, wch_t sym)
+	{
+		insert(pos, 0, code, 0, sym);
+	}
+	inline void CharBuffer::insert(Iterator pos, CharType type, char ckey, wch_t sym)
+	{
+		insert(pos, type, 0, ckey, sym);
+	}
+	inline void CharBuffer::insert(Iterator pos, CharType type, ArrayCode code, wch_t sym)
+	{
+		insert(pos, type, code, 0, sym);
+	}
+
+
+
+#if 0
 	class LookupTable
 	{
 		public:
@@ -149,39 +287,5 @@ namespace freearray {
 			size_type get_max_page_size();
 			size_type get_total_size();
 	};
-	class WordBuffer {
-		public:
-			iterator;
-			size_t size() { return buffer.size() }
-
-			vector<string> get_vector();
-			string get_string();
-
-			/*
-			   size_t get_cursor();
-			   cursor_up();
-			   cursor_down();
-			 */
-		private:
-			vector<Word> buffer;
-	};
-
-	string WordBuffer::get_string()
-	{
-		string s;
-		for (vector<Word>::iterator it = buffer.begin(); it != buffer.end(); ++it)
-			s += reinterpret_cast<char *>(it->ch.s);
-
-		return s;
-	}
-
-	vector<string> WordBuffer::get_vector()
-	{
-		vector<string> vec_s;
-
-		for (vector<Word>::iterator it = buffer.begin(); it != buffer.end(); ++it)
-			vec_s.push_back(reinterpret_cast<char *>(it->ch.s));
-
-		return vec_s;
-	}
+#endif
 }

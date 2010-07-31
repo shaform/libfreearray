@@ -41,15 +41,4 @@ noinst_DIST = \
 DISTCLEANFILES = \
 	$(NULL)
 
-rpm: dist @PACKAGE_NAME@.spec
-	rpmbuild -bb \
-			--define "_sourcedir `pwd`" \
-			--define "_builddir `pwd`" \
-			--define "_specdir `pwd`" \
-			--define "_rpmdir `pwd`" \
-			--define "_srcrpmdir `pwd`" \
-			@PACKAGE_NAME@.spec
-clean-rpm:
-	$(RM) -r "`uname -i`"
-
 clean-local: clean-rpm
