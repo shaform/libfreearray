@@ -20,26 +20,11 @@
 # See the file "COPYING" for information on usage and redistribution
 # of this file.
 
-SUBDIRS = \
-	src \
-	include \
-	data \
-	icons \
-	tools \
-	test \
+include_HEADERS = \
+	kbtype.h \
+	code.h \
+	tables.h \
+	imengine.h \
+	imengine_component.h \
 	$(NULL)
 
-ACLOCAL_AMFLAGS = -I m4
-
-EXTRA_DIST = \
-	autogen.sh \
-	$(NULL)
-
-noinst_DIST = \
-	$(NULL)
-
-
-DISTCLEANFILES = \
-	$(NULL)
-
-clean-local: clean-rpm

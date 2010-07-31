@@ -20,27 +20,27 @@
 # See the file "COPYING" for information on usage and redistribution
 # of this file.
 
-INCLUDES = \
-	-I$(top_srcdir)/include \
-	$(NULL)
+#INCLUDES = \
+#	-I$(top_srcdir)/include \
+#	$(NULL)
 
 lib_LTLIBRARIES = libfreearray.la
+
 libfreearray_la_SOURCES = \
 	kbtype.cpp \
 	code.cpp \
 	tables.cpp \
 	imengine.cpp \
 	imengine_component.cpp \
-	frontend.cpp \
 	$(NULL)
 
-libfreearray_la_LIBADD = \
-	$(top_builddir)/src/common/libcommon.la \
-	$(top_builddir)/src/porting_layer/src/libporting_layer.la
-
-libfreearray_la_LDFLAGS = \
-	-version-info $(LIBFREEARRAY_CURRENT):$(LIBFREEARRAY_REVISION):$(LIBFREEARRAY_AGE) \
-	-rpath $(libdir) \
-	-no-undefined \
-	-export-symbols-regex "^(freearray)_"
+libfreearray_la_CPPFLAGS = \
+	-I$(top_srcdir)/include \
+	$(NULL)
+#
+#libfreearray_la_LDFLAGS = \
+#	-version-info $(LIBFREEARRAY_CURRENT):$(LIBFREEARRAY_REVISION):$(LIBFREEARRAY_AGE) \
+#	-rpath $(libdir) \
+#	-no-undefined \
+#	-export-symbols-regex "^(freearray)_"
 
