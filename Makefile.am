@@ -26,7 +26,6 @@ SUBDIRS = \
 	data \
 	icons \
 	tools \
-	test \
 	$(NULL)
 
 ACLOCAL_AMFLAGS = -I m4

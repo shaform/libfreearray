@@ -201,6 +201,10 @@ namespace freearray {
 
 
 			// Getter
+			const std::string get_buffer_string()
+			{
+				return char_buffer.get_string();
+			}
 			/*
 			   bool get_buffer(std::string &);
 			   bool get_buffer(std::vector<std::string> &);
@@ -315,7 +319,7 @@ namespace freearray {
 			   {}
 			 */
 			FreeArrayIM()
-				: v_eng(ENG), v_tc(TC), v_sc(SC) {}
+				: v_eng(ENG), v_tc(TC), v_sc(SC), v_current(TC) {}
 			~FreeArrayIM();
 
 
@@ -425,24 +429,24 @@ namespace freearray {
 		return kbt;
 	}
 
-	const FreeArrayIM::Variety FreeArrayIM::set_variety(Variety v)
+	inline const FreeArrayIM::Variety FreeArrayIM::set_variety(Variety v)
 	{
 		v_current = v;
 	}
-	const FreeArrayIM::Variety FreeArrayIM::get_variety() const
+	inline const FreeArrayIM::Variety FreeArrayIM::get_variety() const
 	{
 		return v_current;
 	}
 
-	const FreeArrayIM::Variety FreeArrayIM::get_eng_variety() const
+	inline const FreeArrayIM::Variety FreeArrayIM::get_eng_variety() const
 	{
 		return v_eng;
 	}
-	const FreeArrayIM::Variety FreeArrayIM::get_tc_variety() const
+	inline const FreeArrayIM::Variety FreeArrayIM::get_tc_variety() const
 	{
 		return v_tc;
 	}
-	const FreeArrayIM::Variety FreeArrayIM::get_sc_variety() const
+	inline const FreeArrayIM::Variety FreeArrayIM::get_sc_variety() const
 	{
 		return v_sc;
 	}
@@ -513,6 +517,14 @@ namespace freearray {
 	}
 
 
+	inline bool FreeArrayIM::is_auto_clear_mode()
+	{
+		return m_auto_clear;
+	}
+	inline bool FreeArrayIM::is_auto_input_mode()
+	{
+		return m_auto_input;
+	}
 
 
 

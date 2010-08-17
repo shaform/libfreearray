@@ -47,9 +47,7 @@ int main()
 		cout << "Type input sequences, separated by space: " << endl;
 
 		for (int i=0; i != s.size(); ++i) {
-			KeyCode key = kbt_dvorak.get_key(s[i]);
-			freearray_im.input_key(key);
-			cout << key << endl;
+			freearray_im.input_key(s[i]);
 		}
 
 		freearray_im.commit_char();

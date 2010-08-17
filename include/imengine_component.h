@@ -22,6 +22,9 @@
  */
 
 #include "code.h"
+#include <cstring>
+#include <vector>
+#include <string>
 #define MAX_UTF8_SIZE 6
 
 namespace freearray {
@@ -29,9 +32,9 @@ namespace freearray {
 	union wch_t {
 		char str[MAX_UTF8_SIZE + 1];
 		wchar_t wch;
-		wch_t();
-		wch_t(char[]);
-		wch_t(wchar_t);
+		wch_t() {}
+		wch_t(char s[]) { std::strcpy(str, s); }
+		wch_t(wchar_t w) : wch(w) {}
 	};
 
 #if 0
@@ -184,23 +187,6 @@ namespace freearray {
 			Iterator cursor;
 	};
 
-	CharBuffer::CharBuffer()
-		: cursor(begin())
-	{
-	}
-	void CharBuffer::insert(Iterator pos, CharType type, ArrayCode code, char ckey, wch_t sym)
-	{
-		/* shift the selectInterval */
-		break_points.insert(break_points.begin() + pos, false);
-		user_break_points.insert(user_break_points.begin() + pos, false);
-		user_connect_points.insert(user_connect_points.begin() + pos, false);
-
-		/* insert all symbols */
-		code_buffer.insert(code_buffer.begin() + pos, code);
-		type_buffer.insert(type_buffer.begin() + pos, type);
-		buffer.insert(buffer.begin() + pos, sym);
-		ckey_buffer.insert(ckey_buffer.begin() + pos, ckey);
-	}
 	inline void CharBuffer::insert(char ckey, wch_t sym)
 	{
 		insert(current(), ckey, sym);
