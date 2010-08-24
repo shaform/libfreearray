@@ -205,6 +205,10 @@ namespace freearray {
 			{
 				return char_buffer.get_string();
 			}
+			const std::string get_key_string()
+			{
+				return key_buffer.get_string();
+			}
 			/*
 			   bool get_buffer(std::string &);
 			   bool get_buffer(std::vector<std::string> &);

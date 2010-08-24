@@ -49,6 +49,7 @@ int main()
 		for (int i=0; i != s.size(); ++i) {
 			freearray_im.input_key(s[i]);
 		}
+		cout << "String : " << freearray_im.get_key_string() << endl;
 
 		freearray_im.commit_char();
 

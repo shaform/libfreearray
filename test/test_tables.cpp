@@ -40,11 +40,11 @@ int main()
 {
 
 	using namespace freearray;
-	KbType *kt_default = new KbTypeDefault,
-	       *kt_dvorak = new KbTypeDvorak;
+	KbType kt_default = kbt_default,
+	       kt_dvorak = kbt_dvorak;
 	string s;
-	DataTable *tc2_table = new SQLiteTable("./data/freearray.db", "TC_CHAR");
-	DataTable *tc_table = new SQLiteTable("./data/freearray.db", "TC_SIGN");
+	DataTable *tc2_table = new SQLiteTable("../data/freearray.db", "TC_CHAR");
+	DataTable *tc_table = new SQLiteTable("../data/freearray.db", "TC_SIGN");
 
 	cout << "Type input sequences, separated by space: " << endl;
 	while (cin >> s)
@@ -55,7 +55,7 @@ int main()
 		kc_vec.clear();
 
 		for (int i=0; i != s.size(); ++i) {
-			KeyCode kc = kt_dvorak->get_kc(s[i]);
+			KeyCode kc = kt_dvorak.get_key(s[i]);
 			kc_vec.push_back(kc);
 			cout << kc << endl;
 		}
@@ -63,16 +63,15 @@ int main()
 		ArrayCode ac;
 		ac = keytocode(kc_vec);
 		cout << "Converted ArrayCode: " << ac << endl;
-		if (tc_table->query(ac)) {
+		if (tc2_table->query(ac)) {
 			cout << "Found: " << endl;
 			string s;
-			while (tc_table->get_next(&s))
+			while (tc2_table->get_next(s))
 				cout << s << endl;
 		}
 		cout << "End found." << endl;
 	}
-	delete kt_default;
-	delete kt_dvorak;
+	delete tc2_table;
 	delete tc_table;
 
 	return 0;

@@ -206,6 +206,6 @@ namespace freearray {
 	DataTable tc_table(TCHAR_CIN_FILE), sign_table(SIGN_CIN_FILE);
 
 #endif
-	SQLiteTable sqdtchar("./data/freearray.db", "TC_CHAR");
+	SQLiteTable sqdtchar("../data/freearray.db", "TC_CHAR");
 	DataTable &dtchar = sqdtchar;
 }

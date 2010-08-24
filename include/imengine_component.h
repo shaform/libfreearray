@@ -33,7 +33,7 @@ namespace freearray {
 		char str[MAX_UTF8_SIZE + 1];
 		wchar_t wch;
 		wch_t() {}
-		wch_t(char s[]) { std::strcpy(str, s); }
+		wch_t(const char s[]) { std::strcpy(str, s); }
 		wch_t(wchar_t w) : wch(w) {}
 	};
 
@@ -58,6 +58,7 @@ namespace freearray {
 			bool get_length() { return buffer.size(); }
 
 			ArrayCode get_code() { return keytocode(buffer); }
+			std::string get_string() { return keytostr(buffer); }
 			KeyCode &get_key(int n) { return buffer.at(n); }
 			KeyCode &back() { return buffer.back(); }
 
@@ -134,8 +135,8 @@ namespace freearray {
 			/* for output display */
 			std::string bytestring;
 
-			void insert(wch_t, int pos);
-			void insert(ArrayCode, int pos);
+			//void insert(wch_t, int pos);
+			//void insert(ArrayCode, int pos);
 			void set_max_length(size_t);
 
 			const std::string get_string(Iterator) const;
