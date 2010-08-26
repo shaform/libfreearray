@@ -34,25 +34,29 @@
 #include "code.h"
 
 namespace freearray {
-	class DataTable {
+	class Table {
 		public:
 			virtual bool query(std::string str) = 0;
-			/*query*/
 			virtual bool query(ArrayCode code) = 0;
-			/*
 			virtual bool query(ArrayCode begin, ArrayCode end) = 0;
-			*/
+
 			virtual int get_next(std::string &s) = 0;
 			virtual int get_next(ArrayCode &ac) = 0;
 
-			/* arrt*/
-			/*
-			virtual int total() const = 0;
-			virtual bool empty() const = 0;
-			*/
-			virtual ~DataTable() {};
+			virtual ~Table() {}
 	};
-	class SQLiteTable : public DataTable {
+
+	class Result {
+		public:
+			virtual bool next() = 0;
+			virtual std::string get_string() = 0;
+			virtual std::string get_vector() = 0;
+			virtual ArrayCode get_code() = 0;
+
+			virtual ~Result() {}
+	};
+
+	class SQLiteTable : public Table {
 		public:
 			virtual bool query(std::string s);
 			bool open_db(const char *db_path);
@@ -79,10 +83,12 @@ namespace freearray {
 	};
 
 
+	class SQLiteResult : public Result {
+	};
 
-	//extern DataTable &dtshort;
-	extern DataTable &dtchar;
-	//extern DataTable &dtspecial;
-	//extern DataTable &dtsign;
+	//extern Table &dtshort;
+	extern Table &dtchar;
+	//extern Table &dtspecial;
+	//extern Table &dtsign;
 }
 #endif

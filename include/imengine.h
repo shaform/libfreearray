@@ -32,12 +32,9 @@
 #include "kbtype.h"
 
 namespace freearray {
-	class IM {
-	};
 	class FreeArrayIM;
 
-	/* This should be a state */
-	/*
+#if 0
 	class FreeArrayIM::Variety {
 		private:
 			friend class FreeArrayIM;
@@ -107,8 +104,7 @@ namespace freearray {
 	{
 		if (data) ++data->count;
 	}
-	*/
-
+#endif
 	
 
 
@@ -130,6 +126,10 @@ namespace freearray {
 				TC,
 				SC,
 				ENG,
+			};
+			enum Shape {
+				HALF,
+				FULL,
 			};
 			enum {
 				ACCEPTED,
@@ -178,16 +178,12 @@ namespace freearray {
 			{
 				return false;
 			}
-			bool is_key_error()
-			{
-				return false;
-			}
+			bool is_key_error();
+			void set_key_error(bool = true);
 			void set_key_updated()
 			{
 			}
-			void set_key_error()
-			{
-			}
+
 			size_t get_key_size()
 			{
 				return key_buffer.get_length();
@@ -201,23 +197,18 @@ namespace freearray {
 
 
 			// Getter
-			const std::string get_buffer_string()
-			{
-				return char_buffer.get_string();
-			}
-			const std::string get_key_string()
-			{
-				return key_buffer.get_string();
-			}
+			const std::string get_buffer_string();
+			const std::string get_buffer_vector();
+
+			const std::string get_key_string();
+			const std::string get_key_vector();
+
+			const std::string get_commit_string();
+			const std::string get_commit_vector();
+
+			const std::string get_auxiliary_string();
+
 			/*
-			   bool get_buffer(std::string &);
-			   bool get_buffer(std::vector<std::string> &);
-
-			   bool get_commit(std::string &);
-			   bool get_commit(std::vector<std::string> &);
-
-			   bool get_auxiliary(std::string &);
-			   bool get_auxiliary(std::vector<std::string> &);
 
 
 			   LookupTable get_cands();
@@ -230,8 +221,6 @@ namespace freearray {
 			KbType get_kbtype();
 			/* Setter */
 			/*
-			   void set_kbtype(kbtype);
-
 			   int faft_context_end_lookup_table(FAFTContext *);
 			   int faft_context_show_lookup_table(FAFTContext *);
 
@@ -253,10 +242,8 @@ namespace freearray {
 
 			/* Attributes */
 
-			/*
-			   shape toggle_shape();
-			   shape get_shape();
-			 */
+			Shape toggle_shape();
+			Shape get_shape();
 
 			const Variety set_variety(Variety = Variety());
 			const Variety get_variety() const;
@@ -279,8 +266,9 @@ namespace freearray {
 			bool set_phrase_mode(bool);
 			bool set_array_sign_mode(bool);
 			bool set_easy_symbol_mode(bool);
+
 			/**
-			  Togglers
+			 * Togglers
 			 */
 			bool set_auto_clear_mode();
 			bool set_auto_input_mode();
@@ -331,8 +319,6 @@ namespace freearray {
 			// implementation
 
 
-			/* ArrayCode, KeyCodes, KeyCode string */
-			/* KeyCodes */
 			KeyCodeBuffer key_buffer;
 			CharBuffer char_buffer;
 			void call_phrasing();
@@ -364,7 +350,7 @@ namespace freearray {
 
 			/* States */
 			bool s_lookup;
-			bool s_;
+			bool s_key_error;
 	};
 
 #if 0
@@ -396,6 +382,14 @@ namespace freearray {
 		char_buffer.clear();
 	}
 
+	inline const std::string FreeArrayIM::get_buffer_string()
+	{
+		return char_buffer.get_string();
+	}
+	inline const std::string FreeArrayIM::get_key_string()
+	{
+		return key_buffer.get_string();
+	}
 
 
 	inline void FreeArrayIM::reset()
@@ -419,6 +413,18 @@ namespace freearray {
 	inline CharBuffer::Iterator FreeArrayIM::cursor_end()
 	{
 		return char_buffer.seek(char_buffer.end());
+	}
+
+	/**
+	 * States
+	 */
+	inline bool is_key_error()
+	{
+		return s_key_error;
+	}
+	void set_key_error(bool err)
+	{
+		s_key_error = err;
 	}
 
 	/**

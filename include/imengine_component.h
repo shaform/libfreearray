@@ -221,45 +221,18 @@ namespace freearray {
 		insert(pos, type, code, 0, sym);
 	}
 
-
-
-#if 0
-	class LookupTable
-	{
-		public:
-			LookupTable (int page_size = 10);
-			void set_candidate_labels (const std::vector<WideString> &labels);
-			WideString get_candidate_label (int page_index) const;
-			void set_page_size (int page_size); 
-			int get_page_size () const;
-			int get_current_page_size () const;
-			int get_current_page_start () const;
-			bool is_page_size_fixed () const;
-			int get_cursor_pos () const;
-			int get_cursor_pos_in_current_page () const;
-			bool page_up ();
-			bool page_down ();
-			bool cursor_up ();
-			bool cursor_down ();
-			void set_cursor_pos (int pos);
-			void set_cursor_pos_in_current_page (int pos);
-			WideString get_candidate_in_current_page (int page_index) const;
-
-		public:
-			virtual WideString get_candidate (int index) const = 0;
-			virtual uint32 number_of_candidates () const = 0;
-			virtual void clear () = 0;
-	};
-
 	class LookUpTable {
 		public:
-			typedef size_t size_type;
-			typedef;
+			LookUpTable(size_t page_size = 10);
 
+			bool choice_up();
+			bool choice_down();
 
-			// Page mover
-			bool next();
-			bool prev();
+			bool page_up();
+			bool page_down();
+
+			bool cursor_up();
+			bool cursor_down();
 
 			// Iterators
 			iterator begin();
@@ -268,11 +241,19 @@ namespace freearray {
 			iterator page_end();
 
 			// Information
-			size_type get_page_size();
-			size_type get_page_number();
+			size_type get_total_choice();
+			size_type get_total_page();
+			size_type get_total_cursor();
+
+			size_type get_choice();
 			size_type get_page();
-			size_type get_max_page_size();
+			size_type get_cursor();
+
 			size_type get_total_size();
-	};
-#endif
+
+			// Others
+			void clear();
+			void select();
+			// Setter
+			void set_page_size();
 }
