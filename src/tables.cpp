@@ -68,6 +68,8 @@ namespace freearray {
 	}
 
 #endif
+	/*
+	 * To be removed
 	class SQLiteTable::SQLiteTableImpl {
 		public:
 			sqlite3 *db;
@@ -79,6 +81,7 @@ namespace freearray {
 			string table_name;
 			int ret;
 	};
+	*/
 
 	SQLiteTable::SQLiteTable() : impl(new SQLiteTableImpl) {}
 	SQLiteTable::SQLiteTable(const char *dp, const char *tn/*, OpenMode mode*/)
@@ -96,13 +99,30 @@ namespace freearray {
 	bool SQLiteTable::open_db(const char *dp/*, OpenMode mode*/)
 	{
 		impl->db_path = string(dp);
-		if (sqlite3_open_v2(dp, &impl->db, SQLITE_OPEN_READONLY, NULL) == SQLITE_OK)
+		if (db)
+			close_db();
+
+		if (sqlite3_open_v2(dp, &db, SQLITE_OPEN_READONLY | SQLITE_OPEN_FULLMUTE, 0) == SQLITE_OK)
 			return true;
-		else
+		else {
+			close_db();
 			return false;
+		}
+	}
+	void SQLiteTable::close_db()
+	{
+		sqlite3_close(db);
+		db = 0;
 	}
 	bool SQLiteTable::open_table(const char *tn)
 	{
+		// FIXME
+		if (db) {
+			tb_name = tn;
+			sqlite3_prepare_v2();
+
+		} else
+			return false;
 		if (impl->db) {
 			impl->table_name = tn;
 			sqlite3_prepare_v2(impl->db, ("SELECT word FROM " + impl->table_name + " WHERE code=?").c_str(), -1, &impl->qw_stmt, NULL);
