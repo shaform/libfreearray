@@ -43,8 +43,8 @@ int main()
 	KbType kt_default = kbt_default,
 	       kt_dvorak = kbt_dvorak;
 	string s;
-	DataTable *tc2_table = new SQLiteTable("../data/freearray.db", "TC_CHAR");
-	DataTable *tc_table = new SQLiteTable("../data/freearray.db", "TC_SIGN");
+	Table *tc2_table = new SQLiteTable("../data/freearray.db", "TC_CHAR");
+	Table *tc_table = new SQLiteTable("../data/freearray.db", "TC_SIGN");
 
 	cout << "Type input sequences, separated by space: " << endl;
 	while (cin >> s)
@@ -63,12 +63,11 @@ int main()
 		ArrayCode ac;
 		ac = keytocode(kc_vec);
 		cout << "Converted ArrayCode: " << ac << endl;
-		if (tc2_table->query(ac)) {
-			cout << "Found: " << endl;
-			string s;
-			while (tc2_table->get_next(s))
-				cout << s << endl;
+		Result *r = tc2_table->query(ac);
+		while (r && r->next()) {
+			cout << "Found: " << r->get_string() << endl;
 		}
+		cout << endl;
 		cout << "End found." << endl;
 	}
 	delete tc2_table;

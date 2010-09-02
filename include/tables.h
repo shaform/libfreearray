@@ -30,15 +30,57 @@
 #ifndef FREEARRAY_TABLES_H
 #define FREEARRAY_TABLES_H
 #include <string>
+#include <utility>
 #include <sqlite3.h>
 #include "code.h"
 
 namespace freearray {
+	class Result {
+		public:
+			virtual bool next() = 0;
+			virtual std::string get_string() = 0;
+			virtual ArrayCode get_code() = 0;
+
+			virtual ~Result() {}
+	};
+
+	class BufferedResult : public Result {
+		public:
+			typedef std::vector<std::pair<ArrayCode, std::string> > buffer_type;
+
+			BufferedResult(const buffer_type &vec)
+				: buffer(vec), curr(buffer.begin()), first(true) {}
+			bool next()
+			{
+				if (first) {
+					first = false;
+					return curr != buffer.end();
+				} else
+					return curr != buffer.end() && ++curr != buffer.end();
+			}
+			ArrayCode get_code()
+			{
+				if (curr != buffer.end()) return curr->first;
+				else return KEYCODE_END;
+			};
+			std::string get_string()
+			{
+				if (curr != buffer.end()) return curr->second;
+				else return std::string();
+			};
+			~BufferedResult() {}
+
+		private:
+			std::vector<std::pair<ArrayCode, std::string> > buffer;
+			std::vector<std::pair<ArrayCode, std::string> >::iterator curr;
+			bool first;
+	};
+
 	class Table {
 		public:
-			virtual Result query(std::string str) = 0;
-			virtual Result query(ArrayCode code) = 0;
-			virtual Result query(ArrayCode begin, ArrayCode end) = 0;
+			virtual Result *query(std::string str) = 0;
+			virtual Result *query(ArrayCode code) = 0;
+			virtual Result *query(ArrayCode begin, ArrayCode end) = 0;
 
 			/*
 			virtual int get_next(std::string &s) = 0;
@@ -48,62 +90,28 @@ namespace freearray {
 			virtual ~Table() {}
 	};
 
-	class Result {
-		public:
-			virtual bool next() = 0;
-			virtual std::string get_string() = 0;
-			virtual ArrayCode get_code() = 0;
-
-			virtual ~Result() {}
-	};
-	class BufferedResult {
-		public:
-			typedef std::vector<std::pair<std::string, ArrayCode> > buffer_type;
-
-			BufferedResult(const buffer_type &vec)
-				: buffer(vec), curr(buffer.begin()) {}
-			bool next() { return curr != vec.end() && ++curr != vec.end(); }
-			std::string get_string()
-			{
-				if (curr != vec.end()) return curr->first;
-				else return std::string();
-			};
-			ArrayCode get_code()
-			{
-				if (curr != vec.end()) return curr->second;
-				else return KEYCODE_END;
-			};
-			~Result() {}
-
-		private:
-			std::vector<std::pair<std::string, ArrayCode> > buffer;
-			std::vector<std::pair<std::string, ArrayCode> >::iterator curr;
-	};
 
 	class SQLiteTable : public Table {
 		public:
-			virtual bool query(std::string s);
+			BufferedResult *query(std::string s);
+			BufferedResult *query(ArrayCode array_code);
+			BufferedResult *query(ArrayCode begin, ArrayCode end) { return 0; }
+
+
 			bool open_db(const char *db_path);
 			void close_db();
-
 			bool open_table(const char *table_name);
-			bool query(ArrayCode array_code);
-			bool query(ArrayCode begin, ArrayCode end);
-			//int get_next(std::string &s);
-			//int get_next(ArrayCode &ac);
-			//int total();
-			//bool empty();
-
-
+			void close_table();
 		public:
-			SQLiteTable();
+			SQLiteTable() : db(0), qc_stmt(0), qw_stmt(0) {}
 			SQLiteTable(const char *db_path, const char *table_name);
-			SQLiteTable(sqlite3*);
+			SQLiteTable(sqlite3 *db) : db(db), qc_stmt(0), qw_stmt(0) {}
 
-			~SQLiteTable();
+			~SQLiteTable() { close_db(); }
 		private:
 			sqlite3 *db;
-			int ret;
+			sqlite3_stmt *qc_stmt;
+			sqlite3_stmt *qw_stmt;
 	};
 
 	//extern Table &dtshort;

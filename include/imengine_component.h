@@ -87,13 +87,13 @@ namespace freearray {
 #if 0
 			class Iterator {
 				public:
-					   operator++
-					   operator++
-					   operator--
-					   operator--
-					   operator-=
-					   operator+=
-					   operator int() { return pos; }
+					operator++
+						operator++
+						operator--
+						operator--
+						operator-=
+						operator+=
+						operator int() { return pos; }
 				private:
 					int pos;
 			};
@@ -101,7 +101,7 @@ namespace freearray {
 		public:
 			CharBuffer();
 		public:
-			
+
 #if 0
 			AvailInfo availInfo;
 			ChoiceInfo choiceInfo;
@@ -109,7 +109,7 @@ namespace freearray {
 
 			char selectStr[ MAX_PHONE_SEQ_LEN ][ MAX_PHONE_SEQ_LEN * MAX_UTF8_SIZE + 1 ];
 			IntervalType selectInterval[ MAX_PHONE_SEQ_LEN ];
-			
+
 			IntervalType preferInterval[ MAX_INTERVAL ]; /* add connect points */
 #endif
 
@@ -223,6 +223,9 @@ namespace freearray {
 
 	class LookUpTable {
 		public:
+			typedef size_t size_type;
+			typedef size_t iterator;
+
 			LookUpTable(size_t page_size = 10);
 
 			bool choice_up();
@@ -256,4 +259,5 @@ namespace freearray {
 			void select();
 			// Setter
 			void set_page_size();
+	};
 }

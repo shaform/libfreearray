@@ -26,83 +26,30 @@
  * See the file "COPYING" for information on usage and redistribution
  * of this file.
  */
+
 #include <cstring>
 #include <sqlite3.h>
-#include "tables.h"
+#include <string>
+#include <vector>
+#include <utility>
 #include "code.h"
-
-
-#define SIGN_CIN_FILE sign.data
-#define TCHAR_CIN_FILE table.data
-#define SCHAR_CIN_FILE
-#define SPECIAL_CIN_FILE
-#define SHORT_CIN_FILE
-
-namespace {
-	using std::string;
-}
-
+#include "tables.h"
 namespace freearray {
-#if 0
+	using std::string;
+	using std::vector;
+	using std::pair;
 
-	DataTable::DataTable(const char filename[])
+	SQLiteTable::SQLiteTable(const char *dp, const char *tn) : db(0), qc_stmt(0), qw_stmt(0)
 	{
-		ifstream cinfile;
-		cinfile.open(filename, ios::in);
-		ArrayCode ac;
-		char as[99];
-		WordVector wv;
-		while (cinfile >> ac >> as) {
-			map<ArrayCode, WordVector>::iterator iter = table.find(ac);
-			if( iter == table.end() ) {
-				wv.assign(1,Word(as));
-				table.insert(make_pair(ac, wv));
-			} else {
-				iter->second.push_back(Word(as));
-			}
-		}
-	}
-	WordVector DataTable::fetch(ArrayCode ac, int max_size)
-	{
-		return table[ac];
-	}
-
-#endif
-	/*
-	 * To be removed
-	class SQLiteTable::SQLiteTableImpl {
-		public:
-			sqlite3 *db;
-			sqlite3_stmt *qw_stmt;
-			sqlite3_stmt *qwr_stmt;
-			sqlite3_stmt *next_stmt;
-			string db_path;
-			int total_items;
-			string table_name;
-			int ret;
-	};
-	*/
-
-	SQLiteTable::SQLiteTable() : impl(new SQLiteTableImpl) {}
-	SQLiteTable::SQLiteTable(const char *dp, const char *tn/*, OpenMode mode*/)
-		: impl(new SQLiteTableImpl)
-	{
-
-		impl = new SQLiteTableImpl;
-		if (open_db(dp/*, mode*/)) {
+		if (open_db(dp))
 			open_table(tn);
-		} else
-			impl->db = NULL;
-
-		impl->ret = SQLITE_DONE;
 	}
-	bool SQLiteTable::open_db(const char *dp/*, OpenMode mode*/)
+	bool SQLiteTable::open_db(const char *dp)
 	{
-		impl->db_path = string(dp);
 		if (db)
 			close_db();
 
-		if (sqlite3_open_v2(dp, &db, SQLITE_OPEN_READONLY | SQLITE_OPEN_FULLMUTE, 0) == SQLITE_OK)
+		if (sqlite3_open_v2(dp, &db, SQLITE_OPEN_READONLY | SQLITE_OPEN_FULLMUTEX, 0) == SQLITE_OK)
 			return true;
 		else {
 			close_db();
@@ -111,121 +58,65 @@ namespace freearray {
 	}
 	void SQLiteTable::close_db()
 	{
-		sqlite3_close(db);
+		close_table();
+		if (db)
+			sqlite3_close(db);
 		db = 0;
 	}
 	bool SQLiteTable::open_table(const char *tn)
 	{
-		// FIXME
-		if (db) {
-			tb_name = tn;
-			sqlite3_prepare_v2();
-
-		} else
-			return false;
-		if (impl->db) {
-			impl->table_name = tn;
-			sqlite3_prepare_v2(impl->db, ("SELECT word FROM " + impl->table_name + " WHERE code=?").c_str(), -1, &impl->qw_stmt, NULL);
-			sqlite3_prepare_v2(impl->db, ("SELECT code FROM " + impl->table_name + " WHERE word=?").c_str(), -1, &impl->qwr_stmt, NULL);
-		}
-		return true;
-	}
-
-	SQLiteTable::SQLiteTable(sqlite3 *sq3)
-		: impl(new SQLiteTableImpl)
-	{
-		SQLiteTable();
-		if (sq3) {
-			impl->db_path = string();
-			impl->db = sq3;
-		}
-	}
-
-	bool SQLiteTable::query(string s) {
-		sqlite3_reset(impl->qwr_stmt);
-		sqlite3_bind_text(impl->qwr_stmt, 1, s.c_str(), -1, SQLITE_TRANSIENT);
-		impl->ret = sqlite3_step(impl->qwr_stmt);
-
-		if (impl->ret == SQLITE_ROW)
+		if (db && sqlite3_prepare_v2(db,
+					("SELECT code, word FROM "+string(tn)+" WHERE code=?").c_str(),
+					-1,
+					&qc_stmt, 0) == SQLITE_OK
+				&& sqlite3_prepare_v2(db,
+					("SELECT code, word FROM "+string(tn)+" WHERE word=?").c_str(),
+					-1,
+					&qw_stmt, 0) == SQLITE_OK)
 			return true;
-		else
+		else {
+			close_table();
 			return false;
-	}
-	bool SQLiteTable::query(ArrayCode ac) {
-		sqlite3_reset(impl->qw_stmt);
-		sqlite3_bind_int(impl->qw_stmt, 1, static_cast<int>(ac));
-		impl->ret = sqlite3_step(impl->qw_stmt);
-
-		if (impl->ret == SQLITE_ROW)
-			return true;
-		else
-			return false;
-	}
-	SQLiteTable::~SQLiteTable()
-	{
-		sqlite3_reset(impl->qw_stmt);
-		sqlite3_finalize(impl->qw_stmt);
-		sqlite3_close(impl->db);
-		delete impl;
-	}
-	int SQLiteTable::get_next(string &s)
-	{
-		if (impl->ret == SQLITE_ROW) {
-			s = reinterpret_cast<const char *>(sqlite3_column_text(impl->qw_stmt, 0));
-			impl->ret = sqlite3_step(impl->qw_stmt);
-			return 1;
 		}
-		return 0;
 	}
-	int SQLiteTable::get_next(ArrayCode &ac)
+	void SQLiteTable::close_table()
 	{
-		if (impl->ret == SQLITE_ROW) {
-			ac = static_cast<ArrayCode>(sqlite3_column_int(impl->qwr_stmt, 0));
-			impl->ret = sqlite3_step(impl->qwr_stmt);
-			return 1;
-		}
-		return 0;
+		if (qc_stmt)
+			sqlite3_finalize(qc_stmt);
+		if (qw_stmt)
+			sqlite3_finalize(qw_stmt);
+		qc_stmt = qw_stmt = 0;
 	}
 
+	BufferedResult *SQLiteTable::query(string s) {
+		vector<pair<ArrayCode, string> > vec;
 
-#if 0
-
-	SQLiteTable::fetch(ArrayCode ac, int max_size) {
-		db->execute("SELECT word FROM %s", );
-		sqlite3_stmt *stmt;
-		retcode = sqlite3_prepare_v2(db, "SELECT word FROM %s WHERE code=?", -1, &stmt, NULL);
-		if (retcode == SQLITE_OK) {
-			sqlite3_bind_text(stmt, 1, ac, -1, SQLITE_TRANSIENT);
-			while (sqlite3_step(stmt) == SQLITE_ROW) {
-				gchar *ch = (gchar*)sqlite3_column_text(stmt, 0);
-				gchar *chstr = g_strdup(ch);
-				g_array_append_val(result, chstr);
+		sqlite3_reset(qw_stmt);
+		if (sqlite3_bind_text(qw_stmt, 1, s.c_str(), -1, SQLITE_TRANSIENT) == SQLITE_OK) {
+			while (sqlite3_step(qw_stmt) == SQLITE_ROW) {
+				vec.push_back(pair<ArrayCode, string>(
+							sqlite3_column_int(qw_stmt, 0),
+							reinterpret_cast<const char *>(
+								sqlite3_column_text(qw_stmt, 1))));
 			}
 		}
-    sqlite3_reset(stmt);
-    sqlite3_finalize(stmt);
+		return new BufferedResult(vec);
 	}
-	SQLiteTable::SQLiteTable() {
-		if (instances == 0) {
-			if (sqlite3_open_v2(ARRAY_SQLITE_DB, &db, SQLITE_OPEN_READONLY, NULL) != SQLITE_OK) {
+	BufferedResult *SQLiteTable::query(ArrayCode ac) {
+		vector<pair<ArrayCode, string> > vec;
+
+		sqlite3_reset(qc_stmt);
+		if (sqlite3_bind_int(qc_stmt, 1, ac) == SQLITE_OK) {
+			while (sqlite3_step(qc_stmt) == SQLITE_ROW) {
+				vec.push_back(pair<ArrayCode, string>(
+							sqlite3_column_int(qc_stmt, 0),
+							reinterpret_cast<const char *>(
+								sqlite3_column_text(qc_stmt, 1))));
 			}
-			context->conn = NULL;
 		}
-		++instances;
-	}
-	SQLiteTable::~SQLiteTable()
-	{
-		--instances;
-		if (instances == 0) {
-			sqlite3_close(db);
-		}
+		return new BufferedResult(vec);
 	}
 
-
-
-	DataTable tc_table(TCHAR_CIN_FILE), sign_table(SIGN_CIN_FILE);
-
-#endif
-	SQLiteTable sqdtchar("../data/freearray.db", "TC_CHAR");
-	DataTable &dtchar = sqdtchar;
+	static SQLiteTable sqdtchar("../data/freearray.db", "TC_CHAR");
+	Table &dtchar = sqdtchar;
 }

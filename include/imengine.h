@@ -418,11 +418,11 @@ namespace freearray {
 	/**
 	 * States
 	 */
-	inline bool is_key_error()
+	inline bool FreeArrayIM::is_key_error()
 	{
 		return s_key_error;
 	}
-	void set_key_error(bool err)
+	void FreeArrayIM::set_key_error(bool err)
 	{
 		s_key_error = err;
 	}
