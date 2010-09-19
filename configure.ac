@@ -54,7 +54,7 @@ LT_INIT([dlopen])
 AC_PROG_CXX
 AC_PROG_CC
 AM_PROG_CC_C_O
-AC_CHECK_FUNCS([memchr memmove memset setlocale strchr strcspn strdup strstr])
+AC_CHECK_FUNCS([memchr memmove memset setlocale strchr strcspn strdup strstr select])
 AC_CHECK_HEADERS([locale.h stdlib.h string.h wchar.h])
 AC_C_INLINE
 AC_FUNC_MALLOC

@@ -1,4 +1,4 @@
-bin_PROGRAMS = \
+noinst_PROGRAMS = \
 	       test_imengine \
 	       test_tables \
 	       $(NULL)
