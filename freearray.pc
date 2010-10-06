@@ -1,0 +1,15 @@
+prefix=/usr
+exec_prefix=${prefix}
+libdir=${exec_prefix}/lib
+includedir=${prefix}/include
+datarootdir=${prefix}/share
+datadir=${datarootdir}/freearray
+sysconfdir=${prefix}/etc
+
+freearray_binary_version=0.0.0
+
+Name: FreeArray
+Description: FreeArray Input Method Development
+Version: 0.0.0
+Requires: 
+Libs: -L${libdir} -lfreearray

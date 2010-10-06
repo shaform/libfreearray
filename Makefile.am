@@ -43,3 +43,8 @@ DISTCLEANFILES = \
 	$(NULL)
 
 clean-local: clean-rpm
+
+pkgconfigdir = $(libdir)/pkgconfig
+
+pkgconfig_DATA = freearray.pc
+

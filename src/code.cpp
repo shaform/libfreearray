@@ -43,13 +43,13 @@ namespace {
 namespace freearray {
 
 
-	inline KeyCode get_key(ArrayCode code, int pos)
+	KeyCode get_key(ArrayCode code, int pos)
 	{
 		return (code & ARRAYCODE_MASK[pos]) >> 6*(ARRAYCODE_MAX_LEN - pos - 1);
 	}
 
 
-	inline ArrayCode set_key(ArrayCode code, KeyCode key, int pos)
+	ArrayCode set_key(ArrayCode code, KeyCode key, int pos)
 	{
 		code &= (~ARRAYCODE_MASK[pos]);
 		return code | ((key << 6*(ARRAYCODE_MAX_LEN - pos - 1)) & ARRAYCODE_MASK[pos]);
