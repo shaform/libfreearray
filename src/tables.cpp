@@ -117,6 +117,6 @@ namespace freearray {
 		return new BufferedResult(vec);
 	}
 
-	static SQLiteTable sqdtchar("../data/freearray.db", "TC_CHAR");
+	static SQLiteTable sqdtchar(PKGDATADIR "/data/freearray.db", "TC_CHAR");
 	Table &dtchar = sqdtchar;
 }

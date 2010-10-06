@@ -37,6 +37,7 @@ libfreearray_la_SOURCES = \
 libfreearray_la_CPPFLAGS = \
 	-I$(top_srcdir)/include \
 	@SQLITE3_CFLAGS@ \
+	-DPKGDATADIR=\"$(pkgdatadir)\" \
 	$(NULL)
 libfreearray_la_LDFLAGS = \
 	@SQLITE3_LIBS@ \

@@ -20,7 +20,8 @@
 # See the file "COPYING" for information on usage and redistribution
 # of this file.
 
-include_HEADERS = \
+freearray_includedir = $(includedir)/freearray
+freearray_include_HEADERS = \
 	kbtype.h \
 	code.h \
 	tables.h \
