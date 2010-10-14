@@ -33,6 +33,7 @@ ACLOCAL_AMFLAGS = -I m4
 
 EXTRA_DIST = \
 	autogen.sh \
+	freearray.pc \
 	$(NULL)
 
 noinst_DIST = \
