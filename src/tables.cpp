@@ -118,5 +118,13 @@ namespace freearray {
 	}
 
 	static SQLiteTable sqdtchar(PKGDATADIR "/data/freearray.db", "TC_CHAR");
+	//static SQLiteTable sqdtshort(PKGDATADIR "/data/freearray.db", "TC_SHORT");
+	static SQLiteTable sqdtsign(PKGDATADIR "/data/freearray.db", "TC_SIGN");
+	static SQLiteTable sqdtphrase(PKGDATADIR "/data/freearray.db", "TC_PHRASE");
+	static SQLiteTable sqdtspecial(PKGDATADIR "/data/freearray.db", "TC_SPECIAL");
 	Table &dtchar = sqdtchar;
+	//Table &dtshort = sqdtshort;
+	Table &dtsign = sqdtsign;
+	Table &dtphrase = sqdtphrase;
+	Table &dtspecial = sqdtspecial;
 }

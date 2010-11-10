@@ -114,9 +114,10 @@ namespace freearray {
 			sqlite3_stmt *qw_stmt;
 	};
 
-	//extern Table &dtshort;
 	extern Table &dtchar;
-	//extern Table &dtspecial;
-	//extern Table &dtsign;
+	//extern Table &dtshort;
+	extern Table &dtspecial;
+	extern Table &dtsign;
+	extern Table &dtphrase;
 }
 #endif
