@@ -1,6 +1,8 @@
 #!/bin/sh
 set -e
 set -x
+libtoolize
+autoheader
 aclocal -I m4
 automake --add-missing --copy
 autoconf

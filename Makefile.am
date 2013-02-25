@@ -43,7 +43,7 @@ noinst_DIST = \
 DISTCLEANFILES = \
 	$(NULL)
 
-clean-local: clean-rpm
+clean-local: 
 
 pkgconfigdir = $(libdir)/pkgconfig
 
