@@ -1,0 +1,8 @@
+FreeArray Input Method
+=======================
+
+libfreearray is an Array30 library that could support implementation of the input method under Linux.
+
+Example implementations:
+
+- ibus-freearray: https://github.com/shaform/ibus-freearray
